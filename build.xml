@@ -1,0 +1,73 @@
+<?xml version = "1.0" encoding = "ISO-8859-1"?>
+<project name="testproject" default="dist" basedir="./">
+	<description>
+	    simplest example build file
+	  </description>
+	<!-- set global properties for this build -->
+	<property name="src" location="src" />
+	<property name="build" location="build" />
+	<property name="dist" location="dist" />
+	<property name="doc" location="doc" />
+	<property name="version" value="1.0" />
+	<property file = "build.properties"/>
+
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp>
+			<format property="current.time" pattern="MM/dd/yyyy hh:mm:ss aa" />
+		</tstamp>
+		<!-- Create the build directory structure used by compile -->
+		<echo message="Build Start Time : ${current.time}" />
+		<mkdir dir="${build}" />
+	</target>
+
+	<target name="compile" depends="init" description="compile the source">
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac srcdir="${src}" destdir="${build}" />
+		<fileset dir="${src}" casesensitive="yes">
+			<exclude name="**/*sample*" />
+		</fileset>
+	</target>
+
+	<target name="dist" depends="compile" description="generate the distribution">
+		<buildnumber />
+		<!-- Create the distribution directory -->
+		<mkdir dir="${dist}/lib" />
+
+		<!-- Put everything in ${build} into the MyApplication-${version}.${build.number}.jar -->
+		<jar destfile="${dist}/lib/MyApplication-${version}.${build.number}.jar" basedir="${build}">
+			<manifest>
+				<attribute name="Main-Class" value="test.Main" />
+			</manifest>
+		</jar>
+		<tstamp>
+			<format property="current.time" pattern="MM/dd/yyyy hh:mm:ss aa" />
+		</tstamp>
+		<echo message="Build completed Time : ${current.time}" />
+	</target>
+
+	<target name="doc" depends="init" description="generate documentation">
+		<javadoc sourcepath="${src}" destdir="${doc}" />
+	</target>
+
+	<target name="clean" description="clean up">
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+	</target>
+
+	<target name="main" depends="clean, dist">
+		<description>Main target</description>
+		<echo>Apache Ant version is ${ant.version} - You are at ${sitename} </echo>
+		<java classname="main.com.MyClass" fork="false" failonerror = "yes" classpath="bin">
+			<arg value = "Hello World"/>
+		</java>
+	</target>
+
+	<target name = "junit">
+	   <junit haltonfailure = "true" printsummary = "true" >
+	      <test name = "com.MyClassTest"/>
+	   </junit>
+	</target>
+
+</project>
